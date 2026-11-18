@@ -1,0 +1,33 @@
+From 8653812c9d9778105a6bfbfd7f31f4e5ddfa8d01 Mon Sep 17 00:00:00 2001
+From: fingerprint-t400 <t400@localhost>
+Date: Wed, 18 Nov 2026 14:56:54 +0000
+Subject: [PATCH 2/2] upeksonly: Lower the bz3 threshold for 147e:2016
+
+Images assembled from the 147e:2016 rev 0.01 swipe sensor have few
+minutiae and genuine matches rarely reach the default threshold of 40
+(see issue #299). Use 25, as already done for the sibling 147e:1001
+sensor; upektc_img, which drives rev 0.02 of the same USB ID, uses 20.
+---
+ libfprint/drivers/upeksonly.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/libfprint/drivers/upeksonly.c b/libfprint/drivers/upeksonly.c
+index e7ea3ce..cf55db1 100644
+--- a/libfprint/drivers/upeksonly.c
++++ b/libfprint/drivers/upeksonly.c
+@@ -1546,6 +1546,12 @@ dev_init (FpImageDevice *dev)
+     case UPEKSONLY_2016:
+       self->img_width = IMG_WIDTH_2016;
+       self->assembling_ctx.line_width = IMG_WIDTH_2016;
++
++      /* Swipe images assembled from this sensor have few minutiae; with the
++       * default threshold (40) genuine matches are almost always rejected
++       * (libfprint issue #299). Use the value of the sibling 147e:1001 and
++       * of upektc_img, which drives the rev 0.02 of this very same USB ID. */
++      fpi_image_device_set_bz3_threshold (dev, 25);
+       break;
+ 
+     default:
+-- 
+2.43.0
+
